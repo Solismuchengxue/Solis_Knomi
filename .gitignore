@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Python virtual environment
+.venv/
+
+# PlatformIO build artifacts
+.pio/
+.pioenvs/
+
+# Node.js
+node_modules/
+ui-ng/dist/
+
+# IDE
+.vscode/
+
+# ESP tools (large binaries, download separately)
+esptool-windows-amd64/
+esp_flash_download_tool/
+
+# Compiled firmware binaries
+*.bin
+*.elf
+*.map
+!jj213_firmware_backup/*.bin

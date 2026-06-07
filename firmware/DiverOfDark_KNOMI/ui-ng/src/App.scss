@@ -1,0 +1,6 @@
+// Override default variables
+$theme-color: "red";
+$enable-responsive-spacings: "true";
+
+// Import Pico
+@use "@picocss/pico/scss/pico";
