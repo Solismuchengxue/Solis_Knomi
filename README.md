@@ -59,6 +59,11 @@ GC9A01_CS   : GPIO5        LCD_BL     : GPIO2        BOOT : GPIO0
 │
 ├── esptool-windows-amd64/                # esptool v5.3.0
 ├── esp_flash_download_tool/              # 乐鑫官方烧录工具（GUI）
+│   ├── bin/                              #   烧录用固件
+│   └── configure/esp32/solis_knomi.conf  #   一键烧录配置
+├── release/                              # 发行版打包输出
+│   ├── solis_knomi_flash_tool.zip        #   开箱即用烧录包
+│   └── solis_knomi_source.zip            #   源码包
 └── .gitignore
 ```
 
@@ -108,63 +113,58 @@ esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
 
 ## 打包发布
 
-### 目录结构
+### 发行版结构
 
 ```
 release/
-├── README.md                          # 发行版使用说明
-├── flash_download_tool_spi.conf       # Flash Download Tool 配置文件
-├── bootloader.bin                     # 引导程序 @ 0x1000
-├── partitions.bin                     # 分区表     @ 0x8000
-├── firmware.bin                       # 固件       @ 0x10000
-├── littlefs.bin                       # 文件系统   @ 0x300000
-└── solis_knomi_source.zip             # 源码包（编译用）
+├── README.md                         # 发行版使用说明
+├── solis_knomi_flash_tool.zip        # 开箱即用烧录包（23MB）
+│   └── 解压后 = Flash Download Tool + bin/ + 配置
+└── solis_knomi_source.zip            # 源码包（101MB）
+    └── 解压后 = DiverOfDark_KNOMI/ 完整源码
 ```
 
-### 烧录地址
+### 📦 solis_knomi_flash_tool.zip — 一键烧录
 
-| 文件 | 偏移地址 | 说明 |
-|---|---|---|
-| `bootloader.bin` | `0x1000` | ESP32 引导程序 |
-| `partitions.bin` | `0x8000` | OTA 双分区表 |
-| `firmware.bin` | `0x10000` | 主固件（app0） |
-| `littlefs.bin` | `0x300000` | GIF 资源文件系统 |
+内含 `esp_flash_download_tool` 完整目录，`bin/` 已放入 4 个固件，
+`configure/esp32/solis_knomi.conf` 已配置好偏移地址。
 
-### 方法一：esptool 命令行
+**使用**：解压 → 双击 `flash_download_tool_3.9.10.exe` → 加载配置 → START。
+
+| 文件 | 偏移 |
+|---|---|
+| `bin/bootloader.bin` | `0x1000` |
+| `bin/partitions.bin` | `0x8000` |
+| `bin/firmware.bin` | `0x10000` |
+| `bin/littlefs.bin` | `0x300000` |
+
+### 📦 solis_knomi_source.zip — 源码编译
 
 ```powershell
-cd release
-esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
-  0x1000 bootloader.bin 0x8000 partitions.bin ^
-  0x10000 firmware.bin 0x300000 littlefs.bin
+cd DiverOfDark_KNOMI
+pio pkg install --platform "espressif32 @ 6.13.0"
+pip install intelhex
+pio run -e knomiv1-4mb
+pio run --target buildfs -e knomiv1-4mb
 ```
 
-### 方法二：Flash Download Tool（GUI）
-
-1. 打开 `esp_flash_download_tool/flash_download_tool_3.9.10.exe`
-2. ChipType: **ESP32**, Flash Size: **32Mbit (4MB)**
-3. 加载 `release/flash_download_tool_spi.conf`
-4. 或手动按上表添加 4 个文件，偏移地址同上
-5. SPI SPEED: 40MHz, SPI MODE: DIO
-6. 选 COM 端口 → **START**
-
-### 生成发行版 ZIP
+### 生成发行版
 
 ```powershell
-# 1. 复制编译产物
-Copy-Item firmware\DiverOfDark_KNOMI\.pio\build\knomiv1-4mb\*.bin release\
+# 1. 复制 bin 到 flash tool 目录
+Copy-Item firmware\DiverOfDark_KNOMI\.pio\build\knomiv1-4mb\*.bin esp_flash_download_tool\bin\
 
-# 2. 打包源码（排除编译产物）
-$src = "firmware\DiverOfDark_KNOMI"
-Compress-Archive -Path "$src\*" `
-  -Exclude ".pio",".git",".github",".vscode","node_modules" `
-  -DestinationPath release\solis_knomi_source.zip
+# 2. 打包 flash tool
+Compress-Archive -Path esp_flash_download_tool\* -DestinationPath release\solis_knomi_flash_tool.zip
+
+# 3. 打包源码
+cd firmware
+Compress-Archive -Path DiverOfDark_KNOMI\* -DestinationPath ..\release\solis_knomi_source.zip
 ```
 
 ### 上传 GitHub Release
 
-1. GitHub 仓库 → Releases → Create a new release
-2. Tag: `v1.0.0`, 上传 `release/` 下所有 `.bin` 文件 + `solis_knomi_source.zip`
+GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
 
 ---
 
