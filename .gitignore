@@ -23,4 +23,8 @@ esp_flash_download_tool/
 *.bin
 *.elf
 *.map
+!release/*.bin
 !jj213_firmware_backup/*.bin
+
+# Release ZIP archives (generated locally)
+release/*.zip

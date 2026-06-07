@@ -98,9 +98,73 @@ esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
   0x300000 .pio\build\knomiv1-4mb\littlefs.bin
 ```
 
+> 也可用 GUI 工具烧录，见下方「打包发布」章节。
+
 ### OTA 更新（设备已联网）
 
 浏览器打开 `http://knomi/update`，上传 `firmware.bin`。
+
+---
+
+## 打包发布
+
+### 目录结构
+
+```
+release/
+├── README.md                          # 发行版使用说明
+├── flash_download_tool_spi.conf       # Flash Download Tool 配置文件
+├── bootloader.bin                     # 引导程序 @ 0x1000
+├── partitions.bin                     # 分区表     @ 0x8000
+├── firmware.bin                       # 固件       @ 0x10000
+├── littlefs.bin                       # 文件系统   @ 0x300000
+└── solis_knomi_source.zip             # 源码包（编译用）
+```
+
+### 烧录地址
+
+| 文件 | 偏移地址 | 说明 |
+|---|---|---|
+| `bootloader.bin` | `0x1000` | ESP32 引导程序 |
+| `partitions.bin` | `0x8000` | OTA 双分区表 |
+| `firmware.bin` | `0x10000` | 主固件（app0） |
+| `littlefs.bin` | `0x300000` | GIF 资源文件系统 |
+
+### 方法一：esptool 命令行
+
+```powershell
+cd release
+esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
+  0x1000 bootloader.bin 0x8000 partitions.bin ^
+  0x10000 firmware.bin 0x300000 littlefs.bin
+```
+
+### 方法二：Flash Download Tool（GUI）
+
+1. 打开 `esp_flash_download_tool/flash_download_tool_3.9.10.exe`
+2. ChipType: **ESP32**, Flash Size: **32Mbit (4MB)**
+3. 加载 `release/flash_download_tool_spi.conf`
+4. 或手动按上表添加 4 个文件，偏移地址同上
+5. SPI SPEED: 40MHz, SPI MODE: DIO
+6. 选 COM 端口 → **START**
+
+### 生成发行版 ZIP
+
+```powershell
+# 1. 复制编译产物
+Copy-Item firmware\DiverOfDark_KNOMI\.pio\build\knomiv1-4mb\*.bin release\
+
+# 2. 打包源码（排除编译产物）
+$src = "firmware\DiverOfDark_KNOMI"
+Compress-Archive -Path "$src\*" `
+  -Exclude ".pio",".git",".github",".vscode","node_modules" `
+  -DestinationPath release\solis_knomi_source.zip
+```
+
+### 上传 GitHub Release
+
+1. GitHub 仓库 → Releases → Create a new release
+2. Tag: `v1.0.0`, 上传 `release/` 下所有 `.bin` 文件 + `solis_knomi_source.zip`
 
 ---
 
