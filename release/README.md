@@ -4,12 +4,12 @@
 
 | 文件 | 说明 |
 |---|---|
-| `solis_knomi_flash_tool.zip` | 开箱即用烧录包（含 Flash Download Tool + 固件） |
-| `solis_knomi_source.zip` | 源码包（PlatformIO 编译用） |
+| `flash_tool.zip` | 开箱即用烧录包（含 Flash Download Tool + 固件） |
+| `source_code.zip` | 源码包（PlatformIO 编译用） |
 
 ---
 
-## 📦 solis_knomi_flash_tool.zip — 一键烧录
+## 📦 flash_tool.zip — 一键烧录
 
 解压后目录结构：
 
@@ -37,7 +37,7 @@ esp_flash_download_tool/
 
 ---
 
-## 📦 solis_knomi_source.zip — 源码编译
+## 📦 source_code.zip — 源码编译
 
 解压后用 PlatformIO 编译：
 

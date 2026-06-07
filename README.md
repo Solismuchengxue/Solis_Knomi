@@ -62,8 +62,8 @@ GC9A01_CS   : GPIO5        LCD_BL     : GPIO2        BOOT : GPIO0
 │   ├── bin/                              #   烧录用固件
 │   └── configure/esp32/solis_knomi.conf  #   一键烧录配置
 ├── release/                              # 发行版打包输出
-│   ├── solis_knomi_flash_tool.zip        #   开箱即用烧录包
-│   └── solis_knomi_source.zip            #   源码包
+│   ├── flash_tool.zip                    #   开箱即用烧录包
+│   └── source_code.zip                   #   源码包
 └── .gitignore
 ```
 
@@ -118,13 +118,13 @@ esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
 ```
 release/
 ├── README.md                         # 发行版使用说明
-├── solis_knomi_flash_tool.zip        # 开箱即用烧录包（23MB）
+├── flash_tool.zip                    # 开箱即用烧录包（23MB）
 │   └── 解压后 = Flash Download Tool + bin/ + 配置
-└── solis_knomi_source.zip            # 源码包（101MB）
+└── source_code.zip                   # 源码包（101MB）
     └── 解压后 = DiverOfDark_KNOMI/ 完整源码
 ```
 
-### 📦 solis_knomi_flash_tool.zip — 一键烧录
+### 📦 flash_tool.zip — 一键烧录
 
 内含 `esp_flash_download_tool` 完整目录，`bin/` 已放入 4 个固件，
 `configure/esp32/solis_knomi.conf` 已配置好偏移地址。
@@ -138,7 +138,7 @@ release/
 | `bin/firmware.bin` | `0x10000` |
 | `bin/littlefs.bin` | `0x300000` |
 
-### 📦 solis_knomi_source.zip — 源码编译
+### 📦 source_code.zip — 源码编译
 
 ```powershell
 cd DiverOfDark_KNOMI
@@ -155,11 +155,11 @@ pio run --target buildfs -e knomiv1-4mb
 Copy-Item firmware\DiverOfDark_KNOMI\.pio\build\knomiv1-4mb\*.bin esp_flash_download_tool\bin\
 
 # 2. 打包 flash tool
-Compress-Archive -Path esp_flash_download_tool\* -DestinationPath release\solis_knomi_flash_tool.zip
+Compress-Archive -Path esp_flash_download_tool\* -DestinationPath release\flash_tool.zip
 
 # 3. 打包源码
 cd firmware
-Compress-Archive -Path DiverOfDark_KNOMI\* -DestinationPath ..\release\solis_knomi_source.zip
+Compress-Archive -Path DiverOfDark_KNOMI\* -DestinationPath ..\release\source_code.zip
 ```
 
 ### 上传 GitHub Release
