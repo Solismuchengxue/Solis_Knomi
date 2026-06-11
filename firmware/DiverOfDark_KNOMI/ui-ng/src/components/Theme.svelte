@@ -2,6 +2,8 @@
     import prettyBytes from "pretty-bytes";
     import { active, Route } from "tinro";
     import ThemeFile from "./ThemeFile.svelte";
+    import { locale } from "../locale";
+    import { t } from "../i18n";
 
     interface ListFilesResponse {
         total: number;
@@ -16,6 +18,8 @@
 
     let filesList: ListFilesResponse | null = null;
     var isSaving = false;
+    let currentLocale: import("../i18n").Locale = "en";
+    locale.subscribe((v) => (currentLocale = v));
     var accentColor = "";
     var backgroundColor = "";
     export let hash = "master";
@@ -62,7 +66,7 @@
 
 <div>
     {#if !filesList}
-        <div aria-busy="true">Loading...</div>
+        <div aria-busy="true">{t("loading", currentLocale)}</div>
     {:else}
         <Route path="/:filename" let:meta>
             <ThemeFile
@@ -77,7 +81,7 @@
         <Route path="/">
             <form on:submit|preventDefault={saveThemeConfig}>
                 <label class="input">
-                    <span>UI Background Color</span>
+                    <span>{t("ui_bg_color", currentLocale)}</span>
                     <input
                         disabled={isSaving}
                         type="color"
@@ -85,20 +89,20 @@
                     />
                 </label>
                 <label class="input">
-                    <span>UI Accent Color</span>
+                    <span>{t("ui_accent_color", currentLocale)}</span>
                     <input
                         disabled={isSaving}
                         type="color"
                         bind:value={accentColor}
                     />
                 </label>
-                <button disabled={isSaving || null} type="submit">SAVE</button>
+                <button disabled={isSaving || null} type="submit">{t("save", currentLocale)}</button>
             </form>
             <table role="grid" class="striped">
                 <thead>
                     <tr>
-                        <th scope="col">Filename</th>
-                        <th scope="col">Size</th>
+                        <th scope="col">{t("filename", currentLocale)}</th>
+                        <th scope="col">{t("size", currentLocale)}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,7 +115,7 @@
                             >
                             <td
                                 >{file.size == -1
-                                    ? "MISSING"
+                                    ? t("missing", currentLocale)
                                     : prettyBytes(file.size)}</td
                             >
                         </tr>
@@ -121,7 +125,7 @@
             <div></div>
         </Route>
 
-        Used space {prettyBytes(filesList.used)} / {prettyBytes(
+        {t("used_space", currentLocale)} {prettyBytes(filesList.used)} / {prettyBytes(
             filesList.total,
         )} <progress value={filesList.used} max={filesList.total}></progress>
     {/if}

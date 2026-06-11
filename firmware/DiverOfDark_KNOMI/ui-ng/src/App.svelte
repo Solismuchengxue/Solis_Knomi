@@ -11,6 +11,8 @@
     import SparkMD5 from "spark-md5/spark-md5";
     import Theme from "./components/Theme.svelte";
     import semver from "semver";
+    import { locale } from "./locale";
+    import { t } from "./i18n";
 
     let fileinput: HTMLInputElement;
     let selectedFile: File | null;
@@ -29,6 +31,13 @@
 
     var isSaving = false;
     var isWifiFocused = false;
+    // current locale — reactive store value bound here
+    let currentLocale: import("./i18n").Locale = "en";
+    locale.subscribe((v) => (currentLocale = v));
+
+    function toggleLang() {
+        locale.update((l) => (l === "en" ? "zh" : "en"));
+    }
 
     var otaSuccess = false;
     var otaError: string | null = null;
@@ -299,8 +308,7 @@
                 request.send(formData);
             })
             .catch(() => {
-                otaError =
-                    "Unknown error while upload, check the console for details.";
+                otaError = t("err_unknown", currentLocale);
                 otaProgress = false;
                 otaPercentage = 0;
             });
@@ -317,11 +325,16 @@
                     ><!-- eslint-disable -->{@html voronLogo}<!-- eslint-enable --></span
                 >
                 <a href="/setup" use:active disabled={otaProgress || null}
-                    >Setup</a
+                    >{t("nav_setup", currentLocale)}</a
                 >
-                <a href="/update" use:active>Update</a>
+                <a href="/update" use:active>{t("nav_update", currentLocale)}</a>
                 <a href="/theme" use:active disabled={otaProgress || null}
-                    >Theme</a
+                    >{t("nav_theme", currentLocale)}</a
+                >
+            </li>
+            <li class="lang-switcher">
+                <button type="button" class="lang-btn" on:click={toggleLang}
+                    >{currentLocale === "en" ? "中文" : "English"}</button
                 >
             </li>
         </ul>
@@ -387,7 +400,7 @@
                     </div>
                 </label>
                 <label class="input">
-                    <span>WiFi PASS</span>
+                    <span>{t("wifi_pass", currentLocale)}</span>
                     <input
                         disabled={isSaving || null}
                         type="text"
@@ -395,7 +408,7 @@
                     />
                 </label>
                 <label class="input">
-                    <span>Klipper IP</span>
+                    <span>{t("klipper_ip", currentLocale)}</span>
                     <input
                         disabled={isSaving || null}
                         type="text"
@@ -403,7 +416,7 @@
                     />
                 </label>
                 <label class="input">
-                    <span>KNOMI Hostname</span>
+                    <span>{t("knomi_hostname", currentLocale)}</span>
                     <input
                         disabled={isSaving || null}
                         type="text"
@@ -411,18 +424,18 @@
                     />
                 </label>
                 <label class="input">
-                    <span>Print Progress calculation method</span>
+                    <span>{t("progress_method", currentLocale)}</span>
                     <select
                         disabled={isSaving || null}
                         type="text"
                         bind:value={printProgressMethod}
                     >
                         <option value="file-relative"
-                            >File Relative (default)</option
+                            >{t("progress_file_relative", currentLocale)}</option
                         >
-                        <option value="file-absolute">File Absolute</option>
-                        <option value="slicer">Slicer</option>
-                        <option value="filament">Filament</option>
+                        <option value="file-absolute">{t("progress_file_absolute", currentLocale)}</option>
+                        <option value="slicer">{t("progress_slicer", currentLocale)}</option>
+                        <option value="filament">{t("progress_filament", currentLocale)}</option>
                     </select>
                 </label>
                 <label class="input">
@@ -430,19 +443,16 @@
                         type="checkbox"
                         bind:checked={skipStandbyAlternation}
                     />
-                    <span
-                        >Skip alternating standby and voron images during
-                        standby</span
-                    >
+                    <span>{t("skip_standby", currentLocale)}</span>
                 </label>
                 <br />
-                <button disabled={isSaving || null} type="submit">SAVE</button>
+                <button disabled={isSaving || null} type="submit">{t("save", currentLocale)}</button>
             </form>
         </div>
     </Route>
     <Route path="/setupdone">
-        <span> Submission successful! </span>
-        <span> You may now close this page. </span>
+        <span> {t("submit_success", currentLocale)} </span>
+        <span> {t("close_page", currentLocale)} </span>
     </Route>
     <Route path="/update">
         {#if otaSuccess}
@@ -477,7 +487,7 @@
                     />
                 </g>
             </svg>
-            <span style="vertical-align: middle;"> OTA Success </span>
+            <span style="vertical-align: middle;"> {t("ota_success", currentLocale)} </span>
             <br />
             <br />
             <button type="button" on:click={clear}>
@@ -503,7 +513,7 @@
                         </g>
                     </g>
                 </svg>
-                Back
+                {t("ota_back", currentLocale)}
             </button>
         {:else if otaError}
             <svg
@@ -572,15 +582,15 @@
                             </g>
                         </g>
                     </svg>
-                    Retry
+                    {t("ota_retry", currentLocale)}
                 </button>
             </div>
         {:else if otaProgress}
-            <h6>Update is in progress. Please do not close this page.</h6>
+            <h6>{t("ota_progress", currentLocale)}</h6>
             <progress value={otaPercentage} max="100"
             ></progress>{otaPercentage}%
         {:else}
-            <h6>Select what you want to update:</h6>
+            <h6>{t("ota_select", currentLocale)}</h6>
             <form on:submit|preventDefault={otaUpdate}>
                 <label class="input">
                     <input
@@ -588,7 +598,7 @@
                         type="radio"
                         name="firmwaretype"
                         value="firmware"
-                    />Firmware
+                    />{t("ota_firmware", currentLocale)}
                 </label>
                 <label class="input">
                     <input
@@ -596,7 +606,7 @@
                         type="radio"
                         name="firmwaretype"
                         value="filesystem"
-                    />Theme
+                    />{t("ota_theme", currentLocale)}
                 </label>
                 <button
                     type="button"
@@ -608,7 +618,7 @@
                     {#if selectedFile}
                         {selectedFile.name} {prettyBytes(selectedFile.size)}
                     {:else}
-                        Choose Firmware
+                        {t("ota_choose", currentLocale)}
                     {/if}
                 </button>
                 <input
@@ -620,7 +630,7 @@
                     bind:this={fileinput}
                 />
                 <button type="submit" disabled={!otaKind || !selectedFile}
-                    >Upload
+                    >{t("ota_upload", currentLocale)}
                 </button>
             </form>
         {/if}
@@ -633,21 +643,12 @@
         <hr />
         <p class="read-the-docs">
             <small>
-                Sincerely, your lovely {device} display.<br />
-                Firmware built from
-                <span data-tooltip="Commit {hash} from {gitTimestamp}"
-                    ><b>{branch}</b> at <b>{buildTimestamp}</b></span
-                >. <br />
-                Check
-                <a href="https://github.com/DiverOfDark/KNOMI" target="_blank"
-                    >repository</a
-                >
-                for more details.
+                {t("footer_lovely", currentLocale, { device })}<br />
+                {@html t("footer_built_from", currentLocale, { branch, buildTimestamp })}
+                <span data-tooltip={t("footer_commit_tip", currentLocale, { hash, gitTimestamp })}></span><br />
+                {@html t("footer_check_repo", currentLocale, { url: "https://github.com/DiverOfDark/KNOMI" })}
                 {#if availableUpdate != ""}
-                    Update to <a
-                        href="https://github.com/DiverOfDark/KNOMI/releases/tag/{availableUpdate}"
-                        target="_blank">{availableUpdate}</a
-                    > available.
+                    {@html t("footer_update_to", currentLocale, { version: availableUpdate, url: "https://github.com/DiverOfDark/KNOMI/releases/tag/" + availableUpdate })}
                 {/if}
             </small>
         </p>
@@ -705,6 +706,26 @@
 
     :global(.active) {
         background: #ff030340;
+    }
+
+    .lang-switcher {
+        margin-left: auto;
+    }
+
+    .lang-btn {
+        background: transparent;
+        border: 1px solid var(--pico-primary);
+        color: var(--pico-primary);
+        padding: 0.5em 1em;
+        border-radius: var(--pico-border-radius);
+        cursor: pointer;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+
+    .lang-btn:hover {
+        background: var(--pico-primary);
+        color: var(--pico-primary-inverse);
     }
 
     nav a:hover {

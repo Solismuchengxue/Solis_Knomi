@@ -2,6 +2,8 @@
     import prettyBytes from "pretty-bytes";
     import { active } from "tinro";
     import { createEventDispatcher } from "svelte";
+    import { locale } from "../locale";
+    import { t } from "../i18n";
 
     const dispatch = createEventDispatcher();
 
@@ -11,6 +13,9 @@
 
     export let usedSize = 0;
     export let totalSize = 0;
+
+    let currentLocale: import("../i18n").Locale = "en";
+    locale.subscribe((v) => (currentLocale = v));
 
     let fileInput: HTMLInputElement;
     let uploadInProgress = false;
@@ -30,9 +35,9 @@
 
         if (file.size > totalSize - usedSize - free_buffer + size) {
             selectedFileError =
-                "Not enough free space for this file. Available is " +
+                t("err_no_space", currentLocale) +
                 prettyBytes(totalSize - usedSize - free_buffer) +
-                ", file is " +
+                t("err_file_is", currentLocale) +
                 prettyBytes(file.size);
             return;
         }
@@ -42,11 +47,11 @@
                 loadToImgAndCheckResolution(file);
             } else {
                 selectedFileError =
-                    "Not supported file format! Expected '" +
+                    t("err_bad_format", currentLocale) +
                     getExtension(filename) +
-                    "', but got '" +
+                    t("err_but_got", currentLocale) +
                     getExtension(file.name) +
-                    "'";
+                    t("err_quote_end", currentLocale);
             }
     }
 
@@ -91,30 +96,30 @@
 <article>
     <header>
         <div>
-            <a role="button" href="/theme" class="outline" use:active>Back</a>
+            <a role="button" href="/theme" class="outline" use:active>{t("back", currentLocale)}</a>
             <span>
-                {filename} ({size == -1 ? "MISSING" : prettyBytes(size)})
+                {filename} ({size == -1 ? t("missing", currentLocale) : prettyBytes(size)})
             </span>
         </div>
     </header>
     <div class="grid">
         <div>
-            <h5>Current</h5>
+            <h5>{t("current", currentLocale)}</h5>
             <div class="imgContainer">
                 {#if uploadInProgress}
                     <div class="imgOverlay">
-                        <div aria-busy={uploadInProgress}>updating</div>
+                        <div aria-busy={uploadInProgress}>{t("updating", currentLocale)}</div>
                     </div>
                 {/if}
                 {#if size == -1}
-                    <h3>NOT FOUND</h3>
+                    <h3>{t("not_found", currentLocale)}</h3>
                 {:else}
                     <img src="/fs/{filename}?{reloadIter}" alt={filename} />
                 {/if}
             </div>
         </div>
         <div>
-            <h5>Original</h5>
+            <h5>{t("original", currentLocale)}</h5>
             <img
                 src="https://github.com/DiverOfDark/KNOMI/blob/{hash}/data/{filename}?raw=true"
                 alt="Original {filename}"
@@ -138,7 +143,7 @@
                     <button
                         type="submit"
                         aria-busy={uploadInProgress}
-                        disabled={uploadInProgress}>Upload new image</button
+                        disabled={uploadInProgress}>{t("upload_new", currentLocale)}</button
                     >
                 </form>
             </div>
