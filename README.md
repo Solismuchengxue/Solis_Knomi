@@ -62,7 +62,7 @@ GC9A01_CS   : GPIO5        LCD_BL     : GPIO2        BOOT : GPIO0
 │   ├── bin/                              #   烧录用固件
 │   └── configure/esp32/solis_knomi.conf  #   一键烧录配置
 ├── release/                              # 发行版打包输出
-│   ├── flash_tool.zip                    #   开箱即用烧录包
+│   ├── flash_tool_v1_0_1.zip             #   开箱即用烧录包（含双语固件）
 │   └── source_code.zip                   #   源码包
 └── .gitignore
 ```
@@ -107,7 +107,10 @@ esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
 
 ### OTA 更新（设备已联网）
 
-浏览器打开 `http://knomi/update`，上传 `firmware.bin`。
+浏览器打开 KNOMI 的 IP 地址 → **更新** 页面，上传 `firmware.bin`。
+
+> 💡 **v1.0.1** Web 界面支持中英文切换，右上角点击 English / 中文 即可。
+> 也可直接上传 `firmware.bin` 从旧版升级。
 
 ---
 
@@ -118,18 +121,20 @@ esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
 ```
 release/
 ├── README.md                         # 发行版使用说明
-├── flash_tool.zip                    # 开箱即用烧录包（23MB）
+| `flash_tool_v1_0_1.zip`              | 开箱即用烧录包（22MB）
 │   └── 解压后 = Flash Download Tool + bin/ + 配置
 └── source_code.zip                   # 源码包（101MB）
     └── 解压后 = DiverOfDark_KNOMI/ 完整源码
 ```
 
-### 📦 flash_tool.zip — 一键烧录
+### 📦 flash_tool_v1_0_1.zip — 一键烧录
 
 内含 `esp_flash_download_tool` 完整目录，`bin/` 已放入 4 个固件，
 `configure/esp32/solis_knomi.conf` 已配置好偏移地址。
 
 **使用**：解压 → 双击 `flash_download_tool_3.9.10.exe` → 加载配置 → START。
+
+> ✨ **v1.0.1** 新增 Web 界面中英文双语切换，右上角一键切换。
 
 | 文件 | 偏移 |
 |---|---|
@@ -155,7 +160,7 @@ pio run --target buildfs -e knomiv1-4mb
 Copy-Item firmware\DiverOfDark_KNOMI\.pio\build\knomiv1-4mb\*.bin esp_flash_download_tool\bin\
 
 # 2. 打包 flash tool
-Compress-Archive -Path esp_flash_download_tool\* -DestinationPath release\flash_tool.zip
+Compress-Archive -Path esp_flash_download_tool\* -DestinationPath release\flash_tool_v1_0_1.zip
 
 # 3. 打包源码
 cd firmware
@@ -196,7 +201,7 @@ GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
 | 指标 | 值 |
 |---|---|
 | RAM | 15.6%（51KB / 320KB） |
-| Flash | 78.4%（1.18MB / 1.5MB 分区） |
+| Flash | 78.6%（1.19MB / 1.5MB 分区） |
 | 平台 | espressif32 @ 6.13.0 |
 | 框架 | Arduino 3.20017 |
 | 依赖 | ArduinoJson 7.4.3, AnimatedGIF 2.2.0, TFT_eSPI 2.5.43 |

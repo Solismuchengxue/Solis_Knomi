@@ -4,12 +4,12 @@
 
 | 文件 | 说明 |
 |---|---|
-| `flash_tool.zip` | 开箱即用烧录包（含 Flash Download Tool + 固件） |
+| `flash_tool_v1_0_1.zip` | 开箱即用烧录包（含 Flash Download Tool + 固件） |
 | `source_code.zip` | 源码包（PlatformIO 编译用） |
 
 ---
 
-## 📦 flash_tool.zip — 一键烧录
+## 📦 flash_tool_v1_0_1.zip — 一键烧录
 
 解压后目录结构：
 
@@ -19,7 +19,7 @@ esp_flash_download_tool/
 ├── bin/
 │   ├── bootloader.bin          ← @ 0x1000
 │   ├── partitions.bin          ← @ 0x8000
-│   ├── firmware.bin            ← @ 0x10000
+│   ├── firmware.bin            ← @ 0x10000  ✅ 支持中英文切换
 │   └── littlefs.bin            ← @ 0x300000
 └── configure/esp32/
     └── solis_knomi.conf        ← 已配置好偏移地址
@@ -27,7 +27,7 @@ esp_flash_download_tool/
 
 ### 使用步骤
 
-1. 解压 `solis_knomi_flash_tool.zip`
+1. 解压 `flash_tool_v1_0_1.zip`
 2. 设备进入下载模式：**按住 BOOT → 按 EN → 松 BOOT**
 3. 双击 `flash_download_tool_3.9.10.exe`
 4. ChipType: **ESP32**, Flash Size: **32Mbit**, SPI SPEED: **40MHz**, SPI MODE: **DIO**
@@ -50,6 +50,13 @@ pio run --target buildfs -e knomiv1-4mb
 ```
 
 编译产物在 `.pio/build/knomiv1-4mb/`。
+
+---
+
+## ✨ v1.0.1 新特性
+
+- **🌐 中英文双语切换** — Web 配置界面右上角可一键切换 English / 中文
+- **⚡ OTA 在线更新** — 编译后的 `firmware.bin` 可通过 Web UI「更新」页面直接上传
 
 ---
 
