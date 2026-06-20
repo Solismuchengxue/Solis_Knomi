@@ -1,4 +1,4 @@
-# KNOMI V1 — DiverOfDark 固件移植
+# Solis_Knomi — KNOMI V1 DiverOfDark 固件移植
 
 基于 [DiverOfDark/KNOMI](https://github.com/DiverOfDark/KNOMI) 分支，适配 **4MB Flash / 无 PSRAM** 的 ESP32-D0WDQ6-V3 硬件。
 
