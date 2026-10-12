@@ -24,7 +24,10 @@ esp_flash_download_tool/
 *.elf
 *.map
 !release/*.bin
-!jj213_firmware_backup/*.bin
+
+# Removed reference materials (kept in a separate local backup)
+/Origi_KNOMI/
+/jj213_firmware_backup/
 
 # Release ZIP archives (generated locally)
 release/*.zip

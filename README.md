@@ -47,16 +47,6 @@ GC9A01_CS   : GPIO5        LCD_BL     : GPIO2        BOOT : GPIO0
 │   ├── src/network/KlipperStreaming.h    #   Moonraker WebSocket 通信
 │   └── data/                             #   GIF 图片资源
 │
-├── jj213_firmware_backup/                # 原始备份固件（jj213 编译）
-│   ├── knomi_backup_4MB.bin              #   完整 4MB 镜像
-│   └── extracted/                        #   反编译产物（参考）
-│
-├── Origi_KNOMI/                          # 原版硬件资料
-│   ├── KNOMI1/                           #   V1: 3D模型 / 硬件 / 手册
-│   ├── KNOMI2/                           #   V2: CAD / 硬件 / STL / 手册
-│   ├── KNOMI_GIF/                        #   原始 GIF 分解帧
-│   └── Images/                           #   参考截图
-│
 ├── esptool-windows-amd64/                # esptool v5.3.0
 ├── esp_flash_download_tool/              # 乐鑫官方烧录工具（GUI）
 │   ├── bin/                              #   烧录用固件
@@ -215,11 +205,3 @@ GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
 DiverOfDark 使用 **TFT_eSPI + AnimatedGIF** 替代 LVGL，无需 PSRAM，完美运行。
 
 > 详细分析见「已废弃方案」历史记录。
-
----
-
-## 恢复备份
-
-```powershell
-esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash 0x0 jj213_firmware_backup/knomi_backup_4MB.bin
-```

@@ -2,7 +2,7 @@
 
 ## 项目职责
 
-- 本仓库维护 KNOMI V1 在 ESP32-D0WDQ6-V3、4 MB Flash、无 PSRAM 硬件上的固件移植、硬件参考资料、原机备份和发行说明。
+- 本仓库维护 KNOMI V1 在 ESP32-D0WDQ6-V3、4 MB Flash、无 PSRAM 硬件上的固件移植、硬件参考资料和发行说明。
 - 当前固件入口为 `firmware/DiverOfDark_KNOMI/`；用户安装、编译、烧录和恢复方法以根级 `README.md` 为准。
 - `README.md` 保持用户视角。迁移盘点、内部判断和临时维护证据不得写入其中。
 
@@ -11,7 +11,7 @@
 - 默认只维护 `knomiv1-4mb` 环境，不得在无硬件验证的情况下声称其他板型或环境可用。
 - 修改引脚、分区、TFT 配置、生成资源、Moonraker 通信、OTA 或烧录偏移前，必须先核对相应源码、`platformio.ini`、分区表和 README。
 - 不得把构建成功等同于硬件验证。涉及显示、联网、OTA 或烧录行为时，应分别报告已执行的构建检查和实际硬件检查。
-- 不得覆盖或删除 `jj213_firmware_backup/knomi_backup_4MB.bin`、硬件资料、发行物或反汇编证据，除非用户明确批准并已有可验证的恢复路径。
+- 不得覆盖或删除硬件资料或发行物，除非用户明确批准并已有可验证的恢复路径。
 
 ## 迁移载荷
 
@@ -25,7 +25,6 @@
 | 可重新下载 | `esptool-windows-amd64/` | 默认不进入最小载荷；重新获取前仍需用户批准下载 |
 | 需单独批准 | `esp_flash_download_tool/` | 包含下载工具、本地固件和 `solis_knomi.conf`；不得仅按缓存处理 |
 | 需单独批准 | `release/flash_tool_v1_0_1.zip` | 本地发行物；在确认远端或其他归档存在同哈希副本前，不得删除 |
-| 应另存 | `jj213_firmware_backup/` 下被忽略的提取文件 | 属于原机固件取证产物；与 tracked 原始备份、反汇编文本分开归档 |
 | 需单独批准 | `firmware/DiverOfDark_KNOMI/rs-flasher/static/` | 包含供刷写器使用的固件段；不得假定均可从当前源码无损重建 |
 | 需单独批准 | 根目录和固件目录下的 `.vscode/` | 本地 IDE 设置，不属于运行载荷；由用户决定是否迁移 |
 
