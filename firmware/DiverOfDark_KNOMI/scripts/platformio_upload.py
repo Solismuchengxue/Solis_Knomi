@@ -15,16 +15,17 @@ import requests
 import hashlib
 Import('env')
 
-try:
-    from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
-    from tqdm import tqdm
-except ImportError:
-    env.Execute("\"$PYTHONEXE\" -m pip install requests_toolbelt~=1.0.0")
-    env.Execute("\"$PYTHONEXE\" -m pip install tqdm~=4.66.1")
-    from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
-    from tqdm import tqdm
-
 def on_upload(source, target, env):
+    # Optional uploader dependencies must not be installed during ordinary builds.
+    try:
+        from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+        from tqdm import tqdm
+    except ImportError:
+        env.Execute("\"$PYTHONEXE\" -m pip install requests_toolbelt~=1.0.0")
+        env.Execute("\"$PYTHONEXE\" -m pip install tqdm~=4.66.1")
+        from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+        from tqdm import tqdm
+
     firmware_path = str(source[0])
     upload_url = env.GetProjectOption('upload_port')
 

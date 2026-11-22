@@ -16,6 +16,7 @@
 
 #include "UpdateProgress.h"
 #include "pages/ApiConfigWifiPost.h"
+#include "pages/ApiAuth.h"
 #include "pages/ApiCoreDumpGet.h"
 #include "pages/ApiDumpHeapGet.h"
 #include "pages/ApiListFilesGet.h"
@@ -54,6 +55,8 @@ private:
   StaticFileContentGet *staticFileContentGet = nullptr;
 
   WebsocketLog *websocketPage = nullptr;
+  ApiAuthStatusGet *authStatusPage = nullptr;
+  ApiAuthPasswordPost *authPasswordPage = nullptr;
 
 public:
   bool started = false;
@@ -80,11 +83,21 @@ public:
     delete staticFileContentGet;
 
     delete websocketPage;
+    delete authStatusPage;
+    delete authPasswordPage;
     httpd_stop(server);
   }
 
-  void registerNotFound() { httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, notFoundStaticCode); }
+  void registerNotFound() {
+    httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, notFoundStaticCode);
+    httpd_register_err_handler(server, HTTPD_405_METHOD_NOT_ALLOWED, methodNotAllowedStaticCode);
+  }
+  static esp_err_t methodNotAllowedStaticCode(httpd_req_t *req, httpd_err_code_t error) {
+    if (!HttpBasicAuth::authorize(req)) return ESP_FAIL;
+    return httpd_resp_send_err(req, error, "Method Not Allowed");
+  }
   static esp_err_t notFoundStaticCode(httpd_req_t *req, httpd_err_code_t error) {
+    if (!HttpBasicAuth::authorize(req)) return ESP_FAIL;
     LV_LOG_INFO("Failed to find page for %s", req->uri);
     httpd_resp_set_hdr(req, "Location", "/");
     httpd_resp_set_status(req, "303 See Other");
@@ -101,6 +114,7 @@ public:
       httpdConfig.max_uri_handlers = 32;
 
       LV_LOG_INFO("Starting server on port: '%d'", httpdConfig.server_port);
+      HttpBasicAuth::begin();
       if (httpd_start(&server, &httpdConfig) == ESP_OK) {
         // Set URI handlers
         LV_LOG_INFO("Registering URI handlers");
@@ -119,6 +133,8 @@ public:
         this->staticFileContentGet = new StaticFileContentGet(server);
 
         this->websocketPage = new WebsocketLog(server);
+        this->authStatusPage = new ApiAuthStatusGet(server);
+        this->authPasswordPage = new ApiAuthPasswordPost(server);
         registerNotFound();
         this->started = true;
       }

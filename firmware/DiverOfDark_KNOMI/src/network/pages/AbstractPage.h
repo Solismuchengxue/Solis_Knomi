@@ -1,5 +1,6 @@
 #pragma once
 #include "esp_http_server.h"
+#include "../HttpBasicAuth.h"
 
 class KnomiWebServer;
 
@@ -233,7 +234,9 @@ protected:
     }
   }
 
-  static esp_err_t handlerStatic(httpd_req_t *request) { return ((AbstractPage *)request->user_ctx)->handler(request); }
+  static esp_err_t handlerStatic(httpd_req_t *request) {
+    return HttpBasicAuth::dispatch(request, [](httpd_req_t *r) { return ((AbstractPage *)r->user_ctx)->handler(r); });
+  }
 
   virtual esp_err_t handler(httpd_req_t *request) = 0;
 };

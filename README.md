@@ -2,6 +2,8 @@
 
 基于 [DiverOfDark/KNOMI](https://github.com/DiverOfDark/KNOMI) 分支，适配 **4MB Flash / 无 PSRAM** 的 ESP32-D0WDQ6-V3 硬件。
 
+当前发行版：[v1.1.0 — WebUI 单管理员认证](https://github.com/Solismuchengxue/Solis_Knomi/releases/tag/v1.1.0)。更新已有设备只需该 Release 的 `firmware.bin`，不要覆盖文件系统、主题或清空 NVS。
+
 ---
 
 ## 硬件信息
@@ -53,7 +55,6 @@ GC9A01_CS   : GPIO5        LCD_BL     : GPIO2        BOOT : GPIO0
 │   └── configure/esp32/solis_knomi.conf  #   一键烧录配置
 ├── release/                              # 发行版打包输出
 │   ├── flash_tool_v1_0_1.zip             #   开箱即用烧录包（含双语固件）
-│   └── source_code.zip                   #   源码包
 └── .gitignore
 ```
 
@@ -69,6 +70,8 @@ pio pkg install --platform "espressif32 @ 6.13.0"
 pip install intelhex
 ```
 
+从 GitHub 新取源码时，还需将同版本 Release 的 `generated-assets.zip` 解压到 `firmware/DiverOfDark_KNOMI/`，得到 `src/generated/` 下的 4 个构建输入。它们按上游规则不进入 Git；GitHub 自动生成的源码压缩包不包含这些文件。
+
 ### 编译
 
 ```powershell
@@ -83,13 +86,13 @@ pio run --target buildfs -e knomiv1-4mb
 
 ### 烧录
 
-设备进入下载模式：**按住 BOOT → 按 EN → 松开 BOOT**
+设备进入下载模式：**按住 BOOT → 按 RESET → 松开 BOOT**
 
 ```powershell
-esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
-  0x1000   .pio\build\knomiv1-4mb\bootloader.bin ^
-  0x8000   .pio\build\knomiv1-4mb\partitions.bin ^
-  0x10000  .pio\build\knomiv1-4mb\firmware.bin ^
+esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash `
+  0x1000   .pio\build\knomiv1-4mb\bootloader.bin `
+  0x8000   .pio\build\knomiv1-4mb\partitions.bin `
+  0x10000  .pio\build\knomiv1-4mb\firmware.bin `
   0x300000 .pio\build\knomiv1-4mb\littlefs.bin
 ```
 
@@ -102,64 +105,32 @@ esptool.exe --chip esp32 --port COM3 --baud 460800 write-flash ^
 > 💡 **v1.0.1** Web 界面支持中英文切换，右上角点击 English / 中文 即可。
 > 也可直接上传 `firmware.bin` 从旧版升级。
 
+### WebUI 管理密码
+
+- v1.1.0 首次未设置管理密码时 WebUI 开放。在「设置」页下方设置密码后，所有页面、API、文件访问、OTA 和 WebSocket 握手统一要求浏览器原生 Basic 登录。
+- 用户名固定为 `admin`，密码由用户自行设置，没有公开默认密码；登录后可在同一位置修改密码。保存后页面重新加载，请使用新密码登录。
+- 校验数据保存在设备内部 NVS，普通重启、固件 OTA 和 Wi-Fi 设置不清除密码，不需要管理凭据文件。
+- HTTP Basic 不提供传输加密，仅在可信局域网使用，不要暴露到公网。首次启动或 NVS 被清除后，应尽快重新设密。
+- 忘记密码不提供远程绕过或清空入口，需另行安排本地维护。开发、构建与验收说明见 [认证维护说明](docs/http-basic-auth.md)。
+
 ---
 
 ## 打包发布
 
-### 发行版结构
+### v1.1.0 资产
 
-```
-release/
-├── README.md                         # 发行版使用说明
-| `flash_tool_v1_0_1.zip`              | 开箱即用烧录包（22MB）
-│   └── 解压后 = Flash Download Tool + bin/ + 配置
-└── source_code.zip                   # 源码包（101MB）
-    └── 解压后 = DiverOfDark_KNOMI/ 完整源码
-```
-
-### 📦 flash_tool_v1_0_1.zip — 一键烧录
-
-内含 `esp_flash_download_tool` 完整目录，`bin/` 已放入 4 个固件，
-`configure/esp32/solis_knomi.conf` 已配置好偏移地址。
-
-**使用**：解压 → 双击 `flash_download_tool_3.9.10.exe` → 加载配置 → START。
-
-> ✨ **v1.0.1** 新增 Web 界面中英文双语切换，右上角一键切换。
-
-| 文件 | 偏移 |
+| 文件 | 用途 |
 |---|---|
-| `bin/bootloader.bin` | `0x1000` |
-| `bin/partitions.bin` | `0x8000` |
-| `bin/firmware.bin` | `0x10000` |
-| `bin/littlefs.bin` | `0x300000` |
+| `firmware.bin` | 已有指定硬件的固件 OTA；与已部署验收的候选逐字节相同 |
+| `SHA256SUMS.txt` | 资产校验值 |
+| `build-info.json` | 发布源码提交、环境、构建输入及验证边界；不含设备配置或密码 |
+| `generated-assets.zip` | 仅 `src/generated/` 的 4 个源码构建输入，不是可烧录的文件系统镜像 |
 
-### 📦 source_code.zip — 源码编译
+完整变更与已知限制见 [v1.1.0 发布说明](docs/releases/v1.1.0.md)。此版本不提供新的全盘/文件系统镜像，不打包本机缓存或设备配置。
 
-```powershell
-cd DiverOfDark_KNOMI
-pio pkg install --platform "espressif32 @ 6.13.0"
-pip install intelhex
-pio run -e knomiv1-4mb
-pio run --target buildfs -e knomiv1-4mb
-```
+历史 [v1.0.1 烧录工具包](https://github.com/Solismuchengxue/Solis_Knomi/releases/tag/v1.0.1)继续保留，不重新打包或覆盖；其中固件不含 v1.1.0 管理密码功能。需要 USB 恢复时先核对硬件和原有偏移，既有设备升级优先使用当前 `firmware.bin` OTA。
 
-### 生成发行版
-
-```powershell
-# 1. 复制 bin 到 flash tool 目录
-Copy-Item firmware\DiverOfDark_KNOMI\.pio\build\knomiv1-4mb\*.bin esp_flash_download_tool\bin\
-
-# 2. 打包 flash tool
-Compress-Archive -Path esp_flash_download_tool\* -DestinationPath release\flash_tool_v1_0_1.zip
-
-# 3. 打包源码
-cd firmware
-Compress-Archive -Path DiverOfDark_KNOMI\* -DestinationPath ..\release\source_code.zip
-```
-
-### 上传 GitHub Release
-
-GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
+本地认证固件构建助手、验证和恢复方法见 [认证维护说明](docs/http-basic-auth.md)。发布前应核对固件 SHA-256、标签提交和所有资产，不将 raw dump、配置或私密材料混入发布包。
 
 ---
 
@@ -184,6 +155,8 @@ GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
 [include knomi.cfg]
 ```
 
+WebUI 管理密码只保护 KNOMI 自身的 HTTP 服务，不是 Moonraker 登录凭据。当前 Moonraker 客户端仍不发送 API Key/JWT；启用 Moonraker 鉴权时，应按部署环境仅信任 KNOMI 已确认保留的固定 IP，不放行整个局域网。
+
 ---
 
 ## 编译参数
@@ -191,7 +164,7 @@ GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
 | 指标 | 值 |
 |---|---|
 | RAM | 15.6%（51KB / 320KB） |
-| Flash | 78.6%（1.19MB / 1.5MB 分区） |
+| Flash | 78.9%（1,189,333 / 1,507,328 字节） |
 | 平台 | espressif32 @ 6.13.0 |
 | 框架 | Arduino 3.20017 |
 | 依赖 | ArduinoJson 7.4.3, AnimatedGIF 2.2.0, TFT_eSPI 2.5.43 |
@@ -202,6 +175,4 @@ GitHub 仓库 → Releases → Create a new release → 上传两个 `.zip`。
 
 本硬件 **无 PSRAM**，原版 BTT 固件依赖 `ps_malloc` 在无 PSRAM 时返回 NULL，导致 LVGL 崩溃。
 
-DiverOfDark 使用 **TFT_eSPI + AnimatedGIF** 替代 LVGL，无需 PSRAM，完美运行。
-
-> 详细分析见「已废弃方案」历史记录。
+DiverOfDark 使用 **TFT_eSPI + AnimatedGIF** 替代 LVGL，无需 PSRAM。本项目的维护与验证范围仅为上述指定的 4 MB 硬件。

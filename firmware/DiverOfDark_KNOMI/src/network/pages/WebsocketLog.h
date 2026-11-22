@@ -33,8 +33,11 @@ public:
     ws_pkt.len = resp_arg->bufLen;
     ws_pkt.payload = (uint8_t *)resp_arg->buf;
 
-    httpd_ws_send_frame_async(resp_arg->hd, resp_arg->fd, &ws_pkt);
-    delete resp_arg->buf;
+    // A queued fd may have closed/reopened as an unauthenticated HTTP socket,
+    // or have authenticated before the administrator changed the password.
+    if (HttpBasicAuth::websocketAuthorized(resp_arg->hd, resp_arg->fd))
+      httpd_ws_send_frame_async(resp_arg->hd, resp_arg->fd, &ws_pkt);
+    delete[] resp_arg->buf;
     delete resp_arg;
   }
 
@@ -62,7 +65,7 @@ public:
 
         esp_err_t ret = httpd_queue_work(server, ws_async_send, resp_arg);
         if (ret != ESP_OK) {
-          delete resp_arg->buf;
+          delete[] resp_arg->buf;
           delete resp_arg;
         }
       }

@@ -10,6 +10,7 @@
     import prettyBytes from "pretty-bytes";
     import SparkMD5 from "spark-md5/spark-md5";
     import Theme from "./components/Theme.svelte";
+    import Password from "./components/Password.svelte";
     import semver from "semver";
     import { locale } from "./locale";
     import { t } from "./i18n";
@@ -448,6 +449,8 @@
                 <br />
                 <button disabled={isSaving || null} type="submit">{t("save", currentLocale)}</button>
             </form>
+            <hr />
+            <Password lang={currentLocale} />
         </div>
     </Route>
     <Route path="/setupdone">
